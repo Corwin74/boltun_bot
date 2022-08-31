@@ -3,7 +3,7 @@ import logging
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from environs import Env
-
+from google_flow import detect_intent_texts
 
 # Enable logging
 logging.basicConfig(
@@ -30,8 +30,8 @@ def help_command(update, context):
 
 
 def echo(update, context):
-    """Echo the user message."""
-    update.message.reply_text(update.message.text)
+    reply = detect_intent_texts(update.message.chat.id, [update.message.text])
+    update.message.reply_text(reply)
 
 
 def main():
@@ -40,7 +40,6 @@ def main():
     env.read_env()
 
     tlgm_token_bot = env('TLGM_TOKEN_BOT')
-    print(f'{tlgm_token_bot = }')
     updater = Updater(tlgm_token_bot)
 
     # Get the dispatcher to register handlers
