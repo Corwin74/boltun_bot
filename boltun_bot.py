@@ -3,7 +3,7 @@ import logging
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from environs import Env
-from google_flow import detect_intent_texts
+from dialog_flow_api import detect_intent_texts
 
 # Enable logging
 logging.basicConfig(
@@ -13,26 +13,26 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Define a few command handlers. These usually take the two arguments update and
-# context.
-def start(update, context):
-    """Send a message when the command /start is issued."""
-    user = update.effective_user
-    update.message.reply_markdown_v2(
-        fr'Здравствуйте {user.mention_markdown_v2()}\!',
-        reply_markup=ForceReply(selective=True),
-    )
+class DialogFlowBot():
+    def __init__(self, project_id):
+        self.project_id = project_id
 
+    def echo(self, update, context):
+        reply = detect_intent_texts(update.message.chat.id, [update.message.text], 'ru', self.project_id)
+        if replyresponse.query_result.intent.display_name
+        update.message.reply_text(reply)
 
-def help_command(update, context):
-    """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
+    def start(self, update, context):
+        """Send a message when the command /start is issued."""
+        user = update.effective_user
+        update.message.reply_markdown_v2(
+            fr'Здравствуйте {user.mention_markdown_v2()}\!',
+            reply_markup=ForceReply(selective=True),
+        )
 
-
-def echo(update, context):
-    reply = detect_intent_texts(update.message.chat.id, [update.message.text])
-    update.message.reply_text(reply)
-
+    def help_command(self, update, context):
+        """Send a message when the command /help is issued."""
+        update.message.reply_text('Help!')
 
 def main():
 
@@ -40,17 +40,21 @@ def main():
     env.read_env()
 
     tlgm_token_bot = env('TLGM_TOKEN_BOT')
+    project_id = env('PROJECT_ID')
+
+    df_bot = DialogFlowBot(project_id)
+
     updater = Updater(tlgm_token_bot)
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", help_command))
+    dispatcher.add_handler(CommandHandler("start", df_bot.start))
+    dispatcher.add_handler(CommandHandler("help", df_bot.help_command))
 
     # on non command i.e message - echo the message on Telegram
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, df_bot.echo))
 
     # Start the Bot
     updater.start_polling()
