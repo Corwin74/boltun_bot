@@ -1,11 +1,12 @@
 import logging
 
-from telegram import Update, ForceReply
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import ForceReply
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from environs import Env
-from dialog_flow_api import detect_intent_texts
+from dialog_flow_api import detect_intent_text
 
-# Enable logging
+REPLY_ENABLE_INTENTS = ['Приветствие', 'Default Fallback Intent']
+
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
@@ -14,13 +15,20 @@ logger = logging.getLogger(__name__)
 
 
 class DialogFlowBot():
-    def __init__(self, project_id):
+    def __init__(self, project_id, enabled_intents):
         self.project_id = project_id
+        self.enabled_intents = enabled_intents
 
     def echo(self, update, context):
-        reply = detect_intent_texts(update.message.chat.id, [update.message.text], 'ru', self.project_id)
-        if replyresponse.query_result.intent.display_name
-        update.message.reply_text(reply)
+        reply = detect_intent_text(
+                                    update.message.chat.id,
+                                    update.message.text,
+                                    'ru',
+                                    self.project_id
+        )
+        print(reply.query_result.intent.display_name)
+        if reply.query_result.intent.display_name in self.enabled_intents:
+            update.message.reply_text(reply.query_result.fulfillment_text)
 
     def start(self, update, context):
         """Send a message when the command /start is issued."""
@@ -38,30 +46,18 @@ def main():
 
     env = Env()
     env.read_env()
-
     tlgm_token_bot = env('TLGM_TOKEN_BOT')
     project_id = env('PROJECT_ID')
 
-    df_bot = DialogFlowBot(project_id)
+    df_bot = DialogFlowBot(project_id, REPLY_ENABLE_INTENTS)
 
     updater = Updater(tlgm_token_bot)
-
-    # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
-
-    # on different commands - answer in Telegram
     dispatcher.add_handler(CommandHandler("start", df_bot.start))
     dispatcher.add_handler(CommandHandler("help", df_bot.help_command))
-
-    # on non command i.e message - echo the message on Telegram
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, df_bot.echo))
 
-    # Start the Bot
     updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
 
 
