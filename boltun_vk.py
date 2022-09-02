@@ -5,7 +5,7 @@ import vk_api as vk
 from vk_api.longpoll import VkLongPoll, VkEventType
 from dialog_flow_api import detect_intent_text
 
-REPLY_ENABLE_INTENTS = ['Приветствие', 'Default Fallback Intent']
+REPLY_ENABLE_INTENTS = ['Приветствие']
 
 
 def echo(event, vk_api, project_id, enabled_intents):
