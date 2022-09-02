@@ -26,7 +26,6 @@ class DialogFlowBot():
                                     'ru',
                                     self.project_id
         )
-        print(reply.query_result.intent.display_name)
         if reply.query_result.intent.display_name in self.enabled_intents:
             update.message.reply_text(reply.query_result.fulfillment_text)
 
