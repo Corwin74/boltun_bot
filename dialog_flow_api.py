@@ -1,5 +1,6 @@
 from google.cloud import dialogflow
 
+
 def detect_intent_text(session_id, text, language_code, project_id):
     session_client = dialogflow.SessionsClient()
     session = session_client.session_path(project_id, session_id)
@@ -9,13 +10,21 @@ def detect_intent_text(session_id, text, language_code, project_id):
         request={"session": session, "query_input": query_input}
         )
 
-def create_intent(project_id, display_name, training_phrases_parts, message_texts):
+
+def create_intent(
+                  project_id,
+                  display_name,
+                  training_phrases_parts,
+                  message_texts
+                  ):
     intents_client = dialogflow.IntentsClient()
 
     parent = dialogflow.AgentsClient.agent_path(project_id)
     training_phrases = []
     for training_phrases_part in training_phrases_parts:
-        part = dialogflow.Intent.TrainingPhrase.Part(text=training_phrases_part)
+        part = dialogflow.Intent.TrainingPhrase.Part(
+            text=training_phrases_part
+        )
         training_phrase = dialogflow.Intent.TrainingPhrase(parts=[part])
         training_phrases.append(training_phrase)
 
@@ -23,7 +32,11 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
     message = dialogflow.Intent.Message(text=text)
 
     intent = dialogflow.Intent(
-        display_name=display_name, training_phrases=training_phrases, messages=[message]
+                               display_name=display_name,
+                               training_phrases=training_phrases,
+                               messages=[message]
     )
 
-    return intents_client.create_intent(request={"parent": parent, "intent": intent})
+    return intents_client.create_intent(
+                                request={"parent": parent, "intent": intent}
+                                )
