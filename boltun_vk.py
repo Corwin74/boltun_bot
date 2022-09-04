@@ -12,7 +12,7 @@ import telegram
 from dialog_flow_api import detect_intent_text
 
 
-REPLY_ENABLE_INTENTS = ['Приветствие']
+REPLY_ENABLE_INTENTS = ['Приветствие', 'Устройство на работу']
 SLEEP_TIME = 10
 
 logger = logging.getLogger(__file__)
