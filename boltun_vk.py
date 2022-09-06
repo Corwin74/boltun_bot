@@ -1,7 +1,8 @@
-import random
-from environs import Env
 import logging
+import random
 import time
+from environs import Env
+
 
 import vk_api as vk
 from vk_api.longpoll import VkLongPoll, VkEventType
@@ -12,7 +13,11 @@ import telegram
 from dialog_flow_api import detect_intent_text
 
 
-REPLY_ENABLE_INTENTS = ['Приветствие', 'Устройство на работу']
+REPLY_ENABLE_INTENTS = [
+                        'Приветствие',
+                        'Устройство на работу',
+                        'Забыл пароль',
+]
 SLEEP_TIME = 10
 
 logger = logging.getLogger(__file__)
@@ -57,9 +62,11 @@ if __name__ == "__main__":
     admin_tlgm_chat_id = env('ADMIN_TLGM_CHAT_ID')
     tlgm_token_bot = env('TLGM_TOKEN_BOT')
 
-    fmtstr = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    fmtdate = '%H:%M:%S'
-    formatter = logging.Formatter(fmtstr, fmtdate)
+
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        '%H:%M:%S',
+    )
     logger.setLevel(logging.INFO)
     logger.addHandler(TlgmLogsHandler(
                                       tlgm_token_bot,
