@@ -13,11 +13,6 @@ import telegram
 from dialog_flow_api import detect_intent_text
 
 
-REPLY_ENABLE_INTENTS = [
-                        'Приветствие',
-                        'Устройство на работу',
-                        'Забыл пароль',
-]
 SLEEP_TIME = 10
 
 logger = logging.getLogger(__file__)
@@ -38,14 +33,14 @@ class TlgmLogsHandler(logging.Handler):
         )
 
 
-def echo(event, vk_api, project_id, enabled_intents):
+def echo(event, vk_api, project_id):
     reply = detect_intent_text(
         event.user_id,
         event.text,
         'ru',
         project_id=project_id
     )
-    if reply.query_result.intent.display_name in enabled_intents:
+    if not reply.query_result.intent.is_fallback:
         vk_api.messages.send(
             user_id=event.user_id,
             message=reply.query_result.fulfillment_text,
@@ -61,7 +56,6 @@ if __name__ == "__main__":
     project_id = env('PROJECT_ID')
     admin_tlgm_chat_id = env('ADMIN_TLGM_CHAT_ID')
     tlgm_token_bot = env('TLGM_TOKEN_BOT')
-
 
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -83,7 +77,7 @@ if __name__ == "__main__":
     for event in longpoll.listen():
         try:
             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                echo(event, vk_api, project_id, REPLY_ENABLE_INTENTS)
+                echo(event, vk_api, project_id)
         except VkApiError as e:
             logger.exception(e)
             time.sleep(SLEEP_TIME)
