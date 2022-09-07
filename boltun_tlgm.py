@@ -23,7 +23,7 @@ class TlgmLogsHandler(logging.Handler):
         )
 
 
-def echo(update, context):
+def send_reply(update, context):
     reply = detect_intent_text(
                                 update.message.chat.id,
                                 update.message.text,
@@ -34,7 +34,6 @@ def echo(update, context):
 
 
 def start(update, context):
-    0/0
     user = update.effective_user
     update.message.reply_markdown_v2(
         fr'Здравствуйте {user.mention_markdown_v2()}\!',
@@ -42,7 +41,7 @@ def start(update, context):
 
 
 def error_handler(update, context):
-    logger.exception('dhdhdhd', exc_info=context.error)
+    logger.exception('Exception', exc_info=context.error)
 
 
 def main():
@@ -63,7 +62,7 @@ def main():
 
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(
-        MessageHandler(Filters.text & ~Filters.command, echo))
+        MessageHandler(Filters.text & ~Filters.command, send_reply))
 
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',

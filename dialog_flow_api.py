@@ -11,6 +11,15 @@ def detect_intent_text(session_id, text, language_code, project_id):
         )
 
 
+def list_intents_names(project_id):
+
+    intents_client = dialogflow.IntentsClient()
+    parent = dialogflow.AgentsClient.agent_path(project_id)
+
+    return [intent.display_name for intent in \
+        intents_client.list_intents(request={"parent": parent})]
+
+
 def create_intent(
                   project_id,
                   display_name,

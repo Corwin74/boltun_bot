@@ -33,7 +33,7 @@ class TlgmLogsHandler(logging.Handler):
         )
 
 
-def echo(event, vk_api, project_id):
+def send_reply(event, vk_api, project_id):
     reply = detect_intent_text(
         event.user_id,
         event.text,
@@ -46,6 +46,7 @@ def echo(event, vk_api, project_id):
             message=reply.query_result.fulfillment_text,
             random_id=random.randint(1, 1000)
         )
+
 
 def main():
     env = Env()
@@ -75,7 +76,7 @@ def main():
     for event in longpoll.listen():
         try:
             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                echo(event, vk_api, project_id)
+                send_reply(event, vk_api, project_id)
         except VkApiError as exception:
             logger.exception(exception)
             time.sleep(SLEEP_TIME)
