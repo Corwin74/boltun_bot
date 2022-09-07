@@ -1,36 +1,21 @@
 import logging
 import random
 import time
-from environs import Env
 
+from environs import Env
+import telegram
 
 import vk_api as vk
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.exceptions import VkApiError
 
-import telegram
-
 from dialog_flow_api import detect_intent_text
+from tlgm_logger import TlgmLogsHandler
 
 
 SLEEP_TIME = 10
 
 logger = logging.getLogger(__file__)
-
-
-class TlgmLogsHandler(logging.Handler):
-
-    def __init__(self, token, chat_id, formatter):
-        super().__init__()
-        self.bot = telegram.Bot(token=token)
-        self.admin_chat_id = chat_id
-        self.setFormatter(formatter)
-
-    def emit(self, record):
-        self.bot.send_message(
-                         chat_id=self.admin_chat_id,
-                         text=self.formatter.format(record)
-        )
 
 
 def send_reply(event, vk_api, project_id):
@@ -52,9 +37,11 @@ def main():
     env = Env()
     env.read_env()
     vk_api_token = env('VK_API_TOKEN')
-    project_id = env('PROJECT_ID')
+    df_project_id = env('DF_PROJECT_ID')
     admin_tlgm_chat_id = env('ADMIN_TLGM_CHAT_ID')
     tlgm_token_bot = env('TLGM_TOKEN_BOT')
+
+    tlgm_bot = telegram.Bot(tlgm_token_bot)
 
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -62,7 +49,7 @@ def main():
     )
     logger.setLevel(logging.INFO)
     logger.addHandler(TlgmLogsHandler(
-                                      tlgm_token_bot,
+                                      tlgm_bot,
                                       admin_tlgm_chat_id,
                                       formatter
                                      )
@@ -76,7 +63,7 @@ def main():
     for event in longpoll.listen():
         try:
             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                send_reply(event, vk_api, project_id)
+                send_reply(event, vk_api, df_project_id)
         except VkApiError as exception:
             logger.exception(exception)
             time.sleep(SLEEP_TIME)

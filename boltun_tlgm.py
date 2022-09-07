@@ -1,26 +1,12 @@
 import logging
+from environs import Env
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from environs import Env
 from dialog_flow_api import detect_intent_text
+from tlgm_logger import TlgmLogsHandler
 
 
 logger = logging.getLogger(__file__)
-
-
-class TlgmLogsHandler(logging.Handler):
-
-    def __init__(self, bot, chat_id, formatter):
-        super().__init__()
-        self.bot = bot
-        self.admin_chat_id = chat_id
-        self.setFormatter(formatter)
-
-    def emit(self, record):
-        self.bot.send_message(
-                         chat_id=self.admin_chat_id,
-                         text=self.formatter.format(record)
-        )
 
 
 def send_reply(update, context):
