@@ -47,9 +47,7 @@ def echo(event, vk_api, project_id):
             random_id=random.randint(1, 1000)
         )
 
-
-if __name__ == "__main__":
-
+def main():
     env = Env()
     env.read_env()
     vk_api_token = env('VK_API_TOKEN')
@@ -78,6 +76,10 @@ if __name__ == "__main__":
         try:
             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
                 echo(event, vk_api, project_id)
-        except VkApiError as e:
-            logger.exception(e)
+        except VkApiError as exception:
+            logger.exception(exception)
             time.sleep(SLEEP_TIME)
+
+
+if __name__ == "__main__":
+    main()
