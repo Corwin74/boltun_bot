@@ -16,8 +16,8 @@ def list_intents_names(project_id):
     intents_client = dialogflow.IntentsClient()
     parent = dialogflow.AgentsClient.agent_path(project_id)
 
-    return [intent.display_name for intent in \
-        intents_client.list_intents(request={"parent": parent})]
+    return [intent.display_name for intent in
+            intents_client.list_intents(request={"parent": parent})]
 
 
 def create_intent(
